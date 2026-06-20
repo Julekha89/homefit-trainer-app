@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
 import '../models/workout.dart';
+import '../services/voice_coach_service.dart';
+import '../widgets/exercise_animation_loader.dart';
 import 'workout_timer_screen.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
@@ -34,10 +36,9 @@ class ExerciseDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    gender.asset,
+                  ExerciseAnimationLoader(
+                    fallbackAsset: gender.asset,
                     fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
                   ),
                   const DecoratedBox(
                     decoration: BoxDecoration(
@@ -134,6 +135,18 @@ class ExerciseDetailScreen extends StatelessWidget {
                       )
                       .toList(),
                 ),
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                  ),
+                  onPressed: () async {
+                    await VoiceCoachService.instance.initialize();
+                    await VoiceCoachService.instance.announceExercise(exercise);
+                  },
+                  icon: const Icon(Icons.volume_up_rounded),
+                  label: const Text('Hear exercise instructions'),
+                ),
                 const SizedBox(height: 28),
                 FilledButton.icon(
                   onPressed: () => Navigator.of(context).push(
@@ -168,7 +181,7 @@ class _InfoChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(

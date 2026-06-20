@@ -1,9 +1,15 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
+import '../models/health_models.dart';
 import '../models/workout.dart';
+import '../services/firebase_service.dart';
+import '../services/firestore_service.dart';
+import '../services/voice_coach_service.dart';
+import '../widgets/exercise_animation_loader.dart';
 
 class WorkoutTimerScreen extends StatefulWidget {
   const WorkoutTimerScreen({
@@ -23,26 +29,33 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   Timer? _timer;
   late int _remaining;
   bool _running = false;
+  bool _voiceEnabled = true;
 
   @override
   void initState() {
     super.initState();
     _remaining = widget.exercise.durationSeconds;
+    unawaited(VoiceCoachService.instance.initialize());
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    unawaited(VoiceCoachService.instance.stop());
     super.dispose();
   }
 
-  void _toggle() {
+  Future<void> _toggle() async {
     if (_running) {
       _timer?.cancel();
       setState(() => _running = false);
       return;
     }
     if (_remaining == 0) _remaining = widget.exercise.durationSeconds;
+    if (_voiceEnabled) {
+      await VoiceCoachService.instance.countdown();
+      if (!mounted) return;
+    }
     setState(() => _running = true);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remaining <= 1) {
@@ -51,7 +64,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
           _remaining = 0;
           _running = false;
         });
-        _showComplete();
+        unawaited(_showComplete());
       } else {
         setState(() => _remaining--);
       }
@@ -66,8 +79,29 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
     });
   }
 
-  void _showComplete() {
-    showDialog<void>(
+  Future<void> _showComplete() async {
+    if (_voiceEnabled) {
+      await VoiceCoachService.instance.speak(
+        '${widget.exercise.name} complete. Great work.',
+      );
+    }
+    final userId = FirebaseService.instance.isConfigured
+        ? FirebaseAuth.instance.currentUser?.uid
+        : null;
+    if (userId != null) {
+      await FirestoreService.instance.recordWorkout(
+        userId,
+        WorkoutHistoryEntry(
+          exerciseName: widget.exercise.name,
+          category: widget.exercise.category,
+          durationSeconds: widget.exercise.durationSeconds,
+          calories: widget.exercise.calories.toDouble(),
+          completedAt: DateTime.now(),
+        ),
+      );
+    }
+    if (!mounted) return;
+    await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(
@@ -114,18 +148,17 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),
-                  child: Image.asset(
-                    widget.gender.asset,
+                  child: ExerciseAnimationLoader(
+                    fallbackAsset: widget.gender.asset,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
                   ),
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 22),
               SizedBox(
-                width: 190,
-                height: 190,
+                width: 176,
+                height: 176,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -146,7 +179,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                           '$_remaining',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 60,
+                            fontSize: 56,
                             height: 1,
                             fontWeight: FontWeight.w900,
                           ),
@@ -165,7 +198,26 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                value: _voiceEnabled,
+                onChanged: (value) => setState(() => _voiceEnabled = value),
+                title: const Text(
+                  'Voice Coach',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                subtitle: const Text(
+                  'Countdowns and encouragement',
+                  style: TextStyle(color: Color(0xFF94A7B8)),
+                ),
+                secondary: const Icon(
+                  Icons.record_voice_over_rounded,
+                  color: AppColors.cyan,
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -176,25 +228,25 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                   ),
                   const SizedBox(width: 20),
                   SizedBox(
-                    width: 78,
-                    height: 78,
+                    width: 72,
+                    height: 72,
                     child: IconButton.filled(
                       style: IconButton.styleFrom(
                         backgroundColor: AppColors.lime,
                         foregroundColor: AppColors.navy,
                       ),
-                      onPressed: _toggle,
+                      onPressed: () => unawaited(_toggle()),
                       icon: Icon(
                         _running
                             ? Icons.pause_rounded
                             : Icons.play_arrow_rounded,
                       ),
-                      iconSize: 42,
+                      iconSize: 40,
                     ),
                   ),
                   const SizedBox(width: 20),
                   IconButton.filledTonal(
-                    onPressed: _showComplete,
+                    onPressed: () => unawaited(_showComplete()),
                     icon: const Icon(Icons.skip_next_rounded),
                     iconSize: 30,
                   ),

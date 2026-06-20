@@ -1,9 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:homefit_trainer/app.dart';
+import 'package:homefit_trainer/controllers/app_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('splash opens the login flow', (tester) async {
-    await tester.pumpWidget(const HomeFitApp());
+    SharedPreferences.setMockInitialValues({});
+    final controller = await AppController.create();
+    await tester.pumpWidget(HomeFitApp(controller: controller));
 
     expect(find.text('TRAIN • TRACK • TRANSFORM'), findsOneWidget);
 
@@ -15,11 +20,15 @@ void main() {
   });
 
   testWidgets('login validates required credentials', (tester) async {
-    await tester.pumpWidget(const HomeFitApp());
+    SharedPreferences.setMockInitialValues({});
+    final controller = await AppController.create();
+    await tester.pumpWidget(HomeFitApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 1700));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Log in'));
+    final loginButton = find.byKey(const Key('login-button'));
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pump();
 
     expect(find.text('Enter a valid email address'), findsOneWidget);

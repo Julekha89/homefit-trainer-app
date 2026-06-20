@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../controllers/app_controller.dart';
 import '../core/app_theme.dart';
 import '../data/workout_data.dart';
 import '../models/workout.dart';
+import '../services/auth_service.dart';
 import '../widgets/common_widgets.dart';
+import 'ai_trainer_screen.dart';
+import 'calculator_screens.dart';
 import 'exercise_detail_screen.dart';
+import 'weight_tracking_screen.dart';
+import 'workout_history_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({
@@ -35,6 +41,11 @@ class _MainShellState extends State<MainShell> {
         onBrowse: () => setState(() => _index = 1),
       ),
       WorkoutCategoriesPage(gender: widget.gender, level: widget.level),
+      AiTrainerScreen(
+        gender: widget.gender,
+        initialGoal: widget.goal,
+        initialLevel: widget.level,
+      ),
       const ProgressPage(),
       ProfilePage(
         gender: widget.gender,
@@ -58,6 +69,11 @@ class _MainShellState extends State<MainShell> {
             icon: Icon(Icons.fitness_center_outlined),
             selectedIcon: Icon(Icons.fitness_center_rounded),
             label: 'Workouts',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_awesome_outlined),
+            selectedIcon: Icon(Icons.auto_awesome_rounded),
+            label: 'Trainer',
           ),
           NavigationDestination(
             icon: Icon(Icons.insights_outlined),
@@ -578,6 +594,16 @@ class ProgressPage extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const WorkoutHistoryScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.history_rounded),
+            label: const Text('View workout history'),
+          ),
         ],
       ),
     );
@@ -695,6 +721,47 @@ class ProfilePage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const Text(
+            'Health tools',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: Column(
+              children: [
+                _ActionTile(
+                  icon: Icons.monitor_weight_outlined,
+                  title: 'Weight tracking',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const WeightTrackingScreen(),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                _ActionTile(
+                  icon: Icons.calculate_outlined,
+                  title: 'BMI calculator',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const BmiCalculatorScreen(),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                _ActionTile(
+                  icon: Icons.local_fire_department_outlined,
+                  title: 'Calories burned calculator',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const CaloriesCalculatorScreen(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
             'Account',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
           ),
@@ -702,6 +769,17 @@ class ProfilePage extends StatelessWidget {
           Card(
             child: Column(
               children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.dark_mode_outlined),
+                  title: const Text('Dark mode'),
+                  value: AppControllerScope.of(context).isDarkMode,
+                  onChanged: AppControllerScope.of(context).setDarkMode,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 3,
+                  ),
+                ),
+                const Divider(height: 1),
                 _ActionTile(
                   icon: Icons.notifications_outlined,
                   title: 'Notifications',
@@ -717,9 +795,13 @@ class ProfilePage extends StatelessWidget {
                 _ActionTile(
                   icon: Icons.logout_rounded,
                   title: 'Log out',
-                  onTap: () => Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil('/', (route) => false),
+                  onTap: () async {
+                    await AuthService.instance.signOut();
+                    if (!context.mounted) return;
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil('/', (route) => false);
+                  },
                 ),
               ],
             ),

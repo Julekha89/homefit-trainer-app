@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../core/app_theme.dart';
+import '../models/health_models.dart';
 import '../models/workout.dart';
+import '../services/firebase_service.dart';
+import '../services/firestore_service.dart';
 import '../widgets/common_widgets.dart';
 import 'main_shell.dart';
 
@@ -194,16 +198,32 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
             .toList(),
       ),
       continueLabel: 'Build my plan',
-      onContinue: () => Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(
-          builder: (_) => MainShell(
+      onContinue: () async {
+        final user = FirebaseService.instance.isConfigured
+            ? FirebaseAuth.instance.currentUser
+            : null;
+        await FirestoreService.instance.saveProfile(
+          UserProfile(
+            id: user?.uid ?? 'demo-user',
+            email: user?.email ?? 'athlete@homefit.app',
+            displayName: user?.displayName ?? 'HomeFit Athlete',
             gender: widget.gender,
             goal: widget.goal,
             level: _level,
           ),
-        ),
-        (route) => false,
-      ),
+        );
+        if (!context.mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(
+            builder: (_) => MainShell(
+              gender: widget.gender,
+              goal: widget.goal,
+              level: _level,
+            ),
+          ),
+          (route) => false,
+        );
+      },
     );
   }
 }
