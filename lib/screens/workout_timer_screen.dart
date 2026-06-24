@@ -30,7 +30,6 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   late int _remaining;
   bool _running = false;
   bool _voiceEnabled = true;
-  bool _showVideo = false;
 
   @override
   void initState() {
@@ -53,7 +52,6 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       return;
     }
     if (_remaining == 0) _remaining = widget.exercise.durationSeconds;
-    setState(() => _showVideo = true);
     if (_voiceEnabled) {
       await VoiceCoachService.instance.countdown();
       if (!mounted) return;
@@ -78,7 +76,6 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
     setState(() {
       _remaining = widget.exercise.durationSeconds;
       _running = false;
-      _showVideo = false;
     });
   }
 
@@ -154,8 +151,8 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                   child: ExerciseMediaPlayer(
                     exercise: widget.exercise,
                     gender: widget.gender,
-                    videoEnabled: _showVideo,
-                    autoPlay: _running,
+                    videoEnabled: true,
+                    autoPlay: true,
                     showControls: false,
                   ),
                 ),
