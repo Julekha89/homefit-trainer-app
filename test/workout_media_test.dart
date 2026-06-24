@@ -276,6 +276,12 @@ void main() {
       expect(imageAsset, isNotNull, reason: '${exercise.name} needs an image');
       expect(videoAsset, isNotNull, reason: '${exercise.name} needs a video');
       expect(
+        videoAsset,
+        startsWith('assets/exercises/female/videos/'),
+        reason:
+            '${exercise.name} video should use the Android-safe no-space path',
+      );
+      expect(
         File(imageAsset!).existsSync(),
         isTrue,
         reason: '${exercise.name} image does not exist: $imageAsset',

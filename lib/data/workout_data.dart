@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/workout.dart';
 
 const _femaleGirlRoot = 'assets/exercises/female/Girl';
+const _femaleVideoRoot = 'assets/exercises/female/videos';
 
 const _standardSteps = <String>[
   'Start in a stable position and brace your core.',
@@ -54,7 +55,7 @@ final workoutCategories = <WorkoutCategory>[
         8,
         ['Upper abs'],
         '$_femaleGirlRoot/Belly slimming/Stander Crunch.png',
-        '$_femaleGirlRoot/Belly slimming/stander crunch.mp4',
+        '$_femaleVideoRoot/standard_crunch.mp4',
       ),
       _exercise(
         'Bicycle Crunch',
@@ -63,7 +64,7 @@ final workoutCategories = <WorkoutCategory>[
         10,
         ['Core', 'Obliques'],
         '$_femaleGirlRoot/Belly slimming/Bicycle Crunch.png',
-        '$_femaleGirlRoot/Belly slimming/Bicycle-crunches-on-a-.mp4',
+        '$_femaleVideoRoot/bicycle_crunch.mp4',
       ),
       _exercise(
         'Flutter Kicks',
@@ -72,7 +73,7 @@ final workoutCategories = <WorkoutCategory>[
         9,
         ['Lower abs', 'Hip flexors'],
         '$_femaleGirlRoot/Belly slimming/Flutter Kicks.png',
-        '$_femaleGirlRoot/Belly slimming/flutter-kicks-on-a-pin.mp4',
+        '$_femaleVideoRoot/flutter_kicks.mp4',
       ),
       _exercise(
         'Russian Twists',
@@ -81,7 +82,7 @@ final workoutCategories = <WorkoutCategory>[
         11,
         ['Obliques'],
         '$_femaleGirlRoot/Belly slimming/Russian Twists.png',
-        '$_femaleGirlRoot/Belly slimming/Russian twist.mp4',
+        '$_femaleVideoRoot/russian_twists.mp4',
       ),
     ],
   ),
@@ -98,7 +99,7 @@ final workoutCategories = <WorkoutCategory>[
         9,
         ['Glutes', 'Hamstrings'],
         '$_femaleGirlRoot/Gulutes & Butt Sculpt/glute-bridges.png',
-        '$_femaleGirlRoot/Gulutes & Butt Sculpt/glute-bridges-.mp4',
+        '$_femaleVideoRoot/glute_bridge.mp4',
       ),
       _exercise(
         'Donkey Kicks',
@@ -107,7 +108,7 @@ final workoutCategories = <WorkoutCategory>[
         8,
         ['Glutes', 'Core'],
         '$_femaleGirlRoot/Gulutes & Butt Sculpt/donkey kicks.png',
-        '$_femaleGirlRoot/Gulutes & Butt Sculpt/donkey kicks.mp4',
+        '$_femaleVideoRoot/donkey_kicks.mp4',
       ),
       _exercise(
         'Fire Hydrants',
@@ -116,7 +117,7 @@ final workoutCategories = <WorkoutCategory>[
         7,
         ['Hips', 'Glutes'],
         '$_femaleGirlRoot/Gulutes & Butt Sculpt/Fire hydrates.png',
-        '$_femaleGirlRoot/Gulutes & Butt Sculpt/Fire hydrates.mp4',
+        '$_femaleVideoRoot/fire_hydrants.mp4',
       ),
       _exercise(
         'Sumo Squats',
@@ -125,7 +126,7 @@ final workoutCategories = <WorkoutCategory>[
         12,
         ['Glutes', 'Inner thighs'],
         '$_femaleGirlRoot/Gulutes & Butt Sculpt/Sumo Squats.png',
-        '$_femaleGirlRoot/Gulutes & Butt Sculpt/Sumo Squatas.mp4',
+        '$_femaleVideoRoot/sumo_squats.mp4',
       ),
     ],
   ),
@@ -142,7 +143,7 @@ final workoutCategories = <WorkoutCategory>[
         12,
         ['Quads', 'Glutes'],
         '$_femaleGirlRoot/Slender legs & thighs/Stander Squatas.png',
-        '$_femaleGirlRoot/Slender legs & thighs/Standard Squats.mp4',
+        '$_femaleVideoRoot/standard_squats.mp4',
       ),
       _exercise(
         'Reverse Lunges',
@@ -151,7 +152,7 @@ final workoutCategories = <WorkoutCategory>[
         13,
         ['Legs', 'Glutes'],
         '$_femaleGirlRoot/Slender legs & thighs/Reserve Lunges.png',
-        '$_femaleGirlRoot/Slender legs & thighs/Reverse Lunges.mp4',
+        '$_femaleVideoRoot/reverse_lunges.mp4',
       ),
       _exercise(
         'Side Leg Raises',
@@ -160,7 +161,7 @@ final workoutCategories = <WorkoutCategory>[
         6,
         ['Hips', 'Glutes'],
         '$_femaleGirlRoot/Slender legs & thighs/Side Leg Raises.png',
-        '$_femaleGirlRoot/Slender legs & thighs/side leg raises.mp4',
+        '$_femaleVideoRoot/side_leg_raises.mp4',
       ),
       _exercise(
         'Curtsy Lunges',
@@ -169,7 +170,7 @@ final workoutCategories = <WorkoutCategory>[
         11,
         ['Glutes', 'Thighs'],
         '$_femaleGirlRoot/Slender legs & thighs/Curtsy Lunges.png',
-        '$_femaleGirlRoot/Slender legs & thighs/curtsy lunges.mp4',
+        '$_femaleVideoRoot/curtsy_lunges.mp4',
       ),
       _exercise(
         'Calf Raises',
@@ -178,7 +179,7 @@ final workoutCategories = <WorkoutCategory>[
         8,
         ['Calves'],
         '$_femaleGirlRoot/Slender legs & thighs/calf raises.png',
-        '$_femaleGirlRoot/Slender legs & thighs/calf raises.mp4',
+        '$_femaleVideoRoot/calf_raises.mp4',
       ),
     ],
   ),
@@ -195,7 +196,7 @@ final workoutCategories = <WorkoutCategory>[
         10,
         ['Chest', 'Triceps'],
         '$_femaleGirlRoot/Tone arms & bust/Claasic Pushups.png',
-        '$_femaleGirlRoot/Tone arms & bust/classic pushups.mp4',
+        '$_femaleVideoRoot/classic_pushups.mp4',
       ),
       _exercise(
         'Knee Pushups',
@@ -204,7 +205,7 @@ final workoutCategories = <WorkoutCategory>[
         7,
         ['Chest', 'Arms'],
         '$_femaleGirlRoot/Tone arms & bust/Knee Pushups.png',
-        '$_femaleGirlRoot/Tone arms & bust/knee pushups.mp4',
+        '$_femaleVideoRoot/knee_pushups.mp4',
       ),
       _exercise(
         'Chair Dips',
@@ -213,7 +214,7 @@ final workoutCategories = <WorkoutCategory>[
         9,
         ['Triceps', 'Shoulders'],
         '$_femaleGirlRoot/Tone arms & bust/Chair Dips.png',
-        '$_femaleGirlRoot/Tone arms & bust/knee chair dips.mp4',
+        '$_femaleVideoRoot/chair_dips.mp4',
       ),
       _exercise(
         'Arm Circles',
@@ -222,7 +223,7 @@ final workoutCategories = <WorkoutCategory>[
         6,
         ['Shoulders'],
         '$_femaleGirlRoot/Tone arms & bust/Arm Circle (2).png',
-        '$_femaleGirlRoot/Tone arms & bust/Arm circle.mp4',
+        '$_femaleVideoRoot/arm_circles.mp4',
       ),
       _exercise(
         'Cobra Stretch',
@@ -231,7 +232,7 @@ final workoutCategories = <WorkoutCategory>[
         3,
         ['Core', 'Back'],
         '$_femaleGirlRoot/Tone arms & bust/Cobra Switch.png',
-        '$_femaleGirlRoot/Tone arms & bust/cobra stretch.mp4',
+        '$_femaleVideoRoot/cobra_stretch.mp4',
       ),
     ],
   ),
@@ -248,7 +249,7 @@ final workoutCategories = <WorkoutCategory>[
         15,
         ['Full body', 'Cardio'],
         '$_femaleGirlRoot/full body fitness/Burpees.png',
-        '$_femaleGirlRoot/full body fitness/Burpees.mp4',
+        '$_femaleVideoRoot/burpees.mp4',
       ),
       _exercise(
         'Mountain Climbers',
@@ -257,7 +258,7 @@ final workoutCategories = <WorkoutCategory>[
         14,
         ['Core', 'Cardio'],
         '$_femaleGirlRoot/full body fitness/Mountain Climber.png',
-        '$_femaleGirlRoot/full body fitness/Mountain Climber.mp4',
+        '$_femaleVideoRoot/mountain_climbers.mp4',
       ),
       _exercise(
         'Standard Squats',
@@ -266,7 +267,7 @@ final workoutCategories = <WorkoutCategory>[
         12,
         ['Legs', 'Glutes'],
         '$_femaleGirlRoot/full body fitness/Stander Squatas.png',
-        '$_femaleGirlRoot/full body fitness/Stander Squatas.mp4',
+        '$_femaleVideoRoot/full_body_standard_squats.mp4',
       ),
       _exercise(
         'Reverse Lunges',
@@ -275,7 +276,7 @@ final workoutCategories = <WorkoutCategory>[
         13,
         ['Legs', 'Balance'],
         '$_femaleGirlRoot/full body fitness/Reverse Lunges.png',
-        '$_femaleGirlRoot/full body fitness/Reverse Lunges.mp4',
+        '$_femaleVideoRoot/full_body_reverse_lunges.mp4',
       ),
       _exercise(
         'Classic Pushups',
@@ -284,7 +285,7 @@ final workoutCategories = <WorkoutCategory>[
         10,
         ['Chest', 'Arms'],
         '$_femaleGirlRoot/full body fitness/Classsic Pushups.png',
-        '$_femaleGirlRoot/full body fitness/Classsic Pushups.mp4',
+        '$_femaleVideoRoot/full_body_classic_pushups.mp4',
       ),
     ],
   ),
