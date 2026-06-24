@@ -65,6 +65,8 @@ class Exercise {
     required this.calories,
     required this.instructions,
     required this.muscles,
+    this.imageAsset,
+    this.videoAsset,
   });
 
   final String name;
@@ -73,6 +75,8 @@ class Exercise {
   final int calories;
   final List<String> instructions;
   final List<String> muscles;
+  final String? imageAsset;
+  final String? videoAsset;
 }
 
 class WorkoutCategory {

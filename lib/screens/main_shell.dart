@@ -391,20 +391,18 @@ class WorkoutCategoriesPage extends StatelessWidget {
               children: category.exercises
                   .map(
                     (exercise) => ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: category.color.withValues(alpha: 0.14),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: category.color,
-                        ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 6),
+                      leading: _ExerciseCardImage(
+                        exercise: exercise,
+                        gender: gender,
+                        color: category.color,
                       ),
                       title: Text(
                         exercise.name,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       subtitle: Text(
-                        '${exercise.durationSeconds}s • ${exercise.calories} kcal',
+                        '${exercise.category} • ${exercise.durationSeconds}s • ${exercise.calories} kcal',
                       ),
                       trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: () => Navigator.of(context).push(
@@ -422,6 +420,43 @@ class WorkoutCategoriesPage extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ExerciseCardImage extends StatelessWidget {
+  const _ExerciseCardImage({
+    required this.exercise,
+    required this.gender,
+    required this.color,
+  });
+
+  final Exercise exercise;
+  final Gender gender;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageAsset = gender == Gender.female ? exercise.imageAsset : null;
+    if (imageAsset == null || imageAsset.isEmpty) {
+      return CircleAvatar(
+        backgroundColor: color.withValues(alpha: 0.14),
+        child: Icon(Icons.play_arrow_rounded, color: color),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Image.asset(
+        imageAsset,
+        width: 58,
+        height: 58,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.14),
+          child: Icon(Icons.image_not_supported_outlined, color: color),
+        ),
       ),
     );
   }
