@@ -121,7 +121,8 @@ void main() {
     await tester.tap(find.text('Start exercise'));
     await tester.pump();
 
-    expect(find.text('Exercise video is playing'), findsOneWidget);
+    expect(find.text('Exercise video is playing'), findsNothing);
+    expect(find.text('Start exercise'), findsNothing);
     expect(find.text('Start workout timer'), findsOneWidget);
   });
 

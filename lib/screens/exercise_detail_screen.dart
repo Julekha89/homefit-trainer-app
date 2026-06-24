@@ -159,13 +159,12 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   label: const Text('Hear exercise instructions'),
                 ),
                 const SizedBox(height: 28),
-                FilledButton.icon(
-                  onPressed: () => setState(() => _showVideo = true),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(
-                    _showVideo ? 'Exercise video is playing' : 'Start exercise',
+                if (!_showVideo)
+                  FilledButton.icon(
+                    onPressed: () => setState(() => _showVideo = true),
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: const Text('Start exercise'),
                   ),
-                ),
                 if (_showVideo) ...[
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
