@@ -199,6 +199,11 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
       ? widget.exercise.imageAsset!
       : widget.gender.asset;
 
+  bool get _hasExerciseImage =>
+      widget.gender == Gender.female &&
+      widget.exercise.imageAsset != null &&
+      widget.exercise.imageAsset!.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
@@ -332,11 +337,26 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
       _fallbackAsset,
       fit: BoxFit.cover,
       alignment: Alignment.topCenter,
-      errorBuilder: (_, _, _) => Image.asset(
-        widget.gender.asset,
-        fit: BoxFit.cover,
-        alignment: Alignment.topCenter,
-      ),
+      errorBuilder: (_, _, _) {
+        if (!_hasExerciseImage) {
+          return Image.asset(
+            widget.gender.asset,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+          );
+        }
+
+        return const ColoredBox(
+          color: AppColors.navy,
+          child: Center(
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              color: Colors.white70,
+              size: 56,
+            ),
+          ),
+        );
+      },
     );
   }
 }
