@@ -289,3 +289,32 @@ final workoutCategories = <WorkoutCategory>[
     ],
   ),
 ];
+
+Exercise? findExerciseMediaSource(Exercise exercise) {
+  final normalizedName = exercise.name.trim().toLowerCase();
+  final normalizedCategory = exercise.category.trim().toLowerCase();
+  final allExercises = workoutCategories.expand(
+    (category) => category.exercises,
+  );
+
+  for (final candidate in allExercises) {
+    if (candidate.name.trim().toLowerCase() == normalizedName &&
+        candidate.category.trim().toLowerCase() == normalizedCategory) {
+      return candidate;
+    }
+  }
+
+  for (final candidate in allExercises) {
+    if (candidate.name.trim().toLowerCase() == normalizedName) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+String? exerciseImageAssetFor(Exercise exercise) =>
+    exercise.imageAsset ?? findExerciseMediaSource(exercise)?.imageAsset;
+
+String? exerciseVideoAssetFor(Exercise exercise) =>
+    exercise.videoAsset ?? findExerciseMediaSource(exercise)?.videoAsset;

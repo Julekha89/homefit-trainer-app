@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../core/app_theme.dart';
+import '../data/workout_data.dart';
 import '../models/workout.dart';
 
 class ExerciseMediaPlayer extends StatefulWidget {
@@ -34,16 +35,20 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   bool get _shouldUseVideo =>
       widget.videoEnabled &&
       widget.gender == Gender.female &&
-      widget.exercise.videoAsset != null &&
-      widget.exercise.videoAsset!.isNotEmpty;
+      _resolvedVideoAsset != null &&
+      _resolvedVideoAsset!.isNotEmpty;
 
   bool get _hasExerciseImage =>
       widget.gender == Gender.female &&
-      widget.exercise.imageAsset != null &&
-      widget.exercise.imageAsset!.isNotEmpty;
+      _resolvedImageAsset != null &&
+      _resolvedImageAsset!.isNotEmpty;
+
+  String? get _resolvedImageAsset => exerciseImageAssetFor(widget.exercise);
+
+  String? get _resolvedVideoAsset => exerciseVideoAssetFor(widget.exercise);
 
   String get _fallbackAsset =>
-      _hasExerciseImage ? widget.exercise.imageAsset! : widget.gender.asset;
+      _hasExerciseImage ? _resolvedImageAsset! : widget.gender.asset;
 
   @override
   void initState() {
@@ -54,7 +59,7 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   @override
   void didUpdateWidget(covariant ExerciseMediaPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.exercise.videoAsset != widget.exercise.videoAsset ||
+    if (exerciseVideoAssetFor(oldWidget.exercise) != _resolvedVideoAsset ||
         oldWidget.gender != widget.gender ||
         oldWidget.videoEnabled != widget.videoEnabled) {
       unawaited(_controller?.dispose());
@@ -76,7 +81,10 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   void _loadVideo() {
     if (!_shouldUseVideo) return;
 
-    final controller = VideoPlayerController.asset(widget.exercise.videoAsset!);
+    final videoAsset = _resolvedVideoAsset;
+    if (videoAsset == null || videoAsset.isEmpty) return;
+
+    final controller = VideoPlayerController.asset(videoAsset);
     _controller = controller;
     _initialize = controller
         .initialize()
@@ -191,12 +199,16 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   }
 
   Widget _fallbackImage() {
+    if (!_hasExerciseImage && widget.gender == Gender.female) {
+      return _missingMediaPlaceholder();
+    }
+
     return Image.asset(
       _fallbackAsset,
       fit: BoxFit.cover,
       alignment: Alignment.center,
       errorBuilder: (_, _, _) {
-        if (!_hasExerciseImage) {
+        if (!_hasExerciseImage && widget.gender != Gender.female) {
           return Image.asset(
             widget.gender.asset,
             fit: BoxFit.cover,
@@ -204,17 +216,21 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
           );
         }
 
-        return const ColoredBox(
-          color: AppColors.navy,
-          child: Center(
-            child: Icon(
-              Icons.image_not_supported_outlined,
-              color: Colors.white70,
-              size: 56,
-            ),
-          ),
-        );
+        return _missingMediaPlaceholder();
       },
+    );
+  }
+
+  Widget _missingMediaPlaceholder() {
+    return const ColoredBox(
+      color: AppColors.navy,
+      child: Center(
+        child: Icon(
+          Icons.image_not_supported_outlined,
+          color: Colors.white70,
+          size: 56,
+        ),
+      ),
     );
   }
 }
