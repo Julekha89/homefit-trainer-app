@@ -36,7 +36,11 @@ class ExerciseDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ExerciseMediaPlayer(exercise: exercise, gender: gender),
+                  ExerciseMediaPlayer(
+                    exercise: exercise,
+                    gender: gender,
+                    videoEnabled: false,
+                  ),
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

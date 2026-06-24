@@ -136,6 +136,45 @@ void main() {
     expect(posterImage, findsNothing);
   });
 
+  testWidgets('plank Android timer opens with image before start', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final plank = workoutCategories
+        .expand((category) => category.exercises)
+        .singleWhere(
+          (exercise) =>
+              exercise.name == 'Plank' && exercise.category == 'Belly Slimming',
+        );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.android),
+        home: WorkoutTimerScreen(exercise: plank, gender: Gender.female),
+      ),
+    );
+
+    final plankImage = find.byWidgetPredicate((widget) {
+      return widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/exercises/female/Girl/Belly slimming/Plank.png';
+    });
+    final posterImage = find.byWidgetPredicate((widget) {
+      return widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/exercises/female/female.png';
+    });
+
+    expect(plankImage, findsOneWidget);
+    expect(posterImage, findsNothing);
+  });
+
   test('female exercise media assets exist', () {
     final exercises = workoutCategories.expand(
       (category) => category.exercises,

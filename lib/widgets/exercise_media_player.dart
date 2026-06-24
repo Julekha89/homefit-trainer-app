@@ -11,10 +11,16 @@ class ExerciseMediaPlayer extends StatefulWidget {
     super.key,
     required this.exercise,
     required this.gender,
+    this.videoEnabled = true,
+    this.autoPlay = false,
+    this.showControls = true,
   });
 
   final Exercise exercise;
   final Gender gender;
+  final bool videoEnabled;
+  final bool autoPlay;
+  final bool showControls;
 
   @override
   State<ExerciseMediaPlayer> createState() => _ExerciseMediaPlayerState();
@@ -26,6 +32,7 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   bool _failed = false;
 
   bool get _shouldUseVideo =>
+      widget.videoEnabled &&
       widget.gender == Gender.female &&
       widget.exercise.videoAsset != null &&
       widget.exercise.videoAsset!.isNotEmpty;
@@ -48,12 +55,15 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
   void didUpdateWidget(covariant ExerciseMediaPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.exercise.videoAsset != widget.exercise.videoAsset ||
-        oldWidget.gender != widget.gender) {
+        oldWidget.gender != widget.gender ||
+        oldWidget.videoEnabled != widget.videoEnabled) {
       unawaited(_controller?.dispose());
       _controller = null;
       _initialize = null;
       _failed = false;
       _loadVideo();
+    } else if (oldWidget.autoPlay != widget.autoPlay) {
+      unawaited(_syncPlayback());
     }
   }
 
@@ -72,6 +82,7 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
         .initialize()
         .then((_) {
           controller.setLooping(true);
+          if (widget.autoPlay) unawaited(controller.play());
           if (mounted) setState(() {});
         })
         .catchError((Object _) {
@@ -87,6 +98,18 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
       await controller.pause();
     } else {
       await controller.play();
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _syncPlayback() async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+
+    if (widget.autoPlay && !controller.value.isPlaying) {
+      await controller.play();
+    } else if (!widget.autoPlay && controller.value.isPlaying) {
+      await controller.pause();
     }
     if (mounted) setState(() {});
   }
@@ -133,33 +156,34 @@ class _ExerciseMediaPlayerState extends State<ExerciseMediaPlayer> {
                 child: VideoPlayer(controller),
               ),
             ),
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 18,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton.filledTonal(
-                    onPressed: () => unawaited(_replay()),
-                    icon: const Icon(Icons.replay_rounded),
-                    tooltip: 'Replay video',
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton.filled(
-                    onPressed: () => unawaited(_toggle()),
-                    icon: Icon(
-                      controller.value.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
+            if (widget.showControls)
+              Positioned(
+                left: 20,
+                right: 20,
+                bottom: 18,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton.filledTonal(
+                      onPressed: () => unawaited(_replay()),
+                      icon: const Icon(Icons.replay_rounded),
+                      tooltip: 'Replay video',
                     ),
-                    tooltip: controller.value.isPlaying
-                        ? 'Pause video'
-                        : 'Play video',
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    IconButton.filled(
+                      onPressed: () => unawaited(_toggle()),
+                      icon: Icon(
+                        controller.value.isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                      ),
+                      tooltip: controller.value.isPlaying
+                          ? 'Pause video'
+                          : 'Play video',
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         );
       },
