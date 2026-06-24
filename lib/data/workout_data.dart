@@ -45,7 +45,7 @@ final workoutCategories = <WorkoutCategory>[
         6,
         ['Core', 'Shoulders'],
         '$_femaleGirlRoot/Belly slimming/Plank.png',
-        '$_femaleGirlRoot/Belly slimming/plank.mp4',
+        'assets/exercises/female/videos/plank.mp4',
       ),
       _exercise(
         'Standard Crunch',

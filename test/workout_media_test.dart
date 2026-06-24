@@ -23,10 +23,7 @@ void main() {
       plank.imageAsset,
       'assets/exercises/female/Girl/Belly slimming/Plank.png',
     );
-    expect(
-      plank.videoAsset,
-      'assets/exercises/female/Girl/Belly slimming/plank.mp4',
-    );
+    expect(plank.videoAsset, 'assets/exercises/female/videos/plank.mp4');
     expect(
       plank.imageAsset,
       isNot('assets/exercises/female/female.png'),
