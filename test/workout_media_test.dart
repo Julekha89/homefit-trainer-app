@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:homefit_trainer/data/workout_data.dart';
 import 'package:homefit_trainer/models/workout.dart';
 import 'package:homefit_trainer/screens/exercise_detail_screen.dart';
+import 'package:homefit_trainer/screens/workout_timer_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +64,57 @@ void main() {
           exercise: plankWithoutVideo,
           gender: Gender.female,
           level: FitnessLevel.beginner,
+        ),
+      ),
+    );
+
+    final plankImage = find.byWidgetPredicate((widget) {
+      return widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/exercises/female/Girl/Belly slimming/Plank.png';
+    });
+    final posterImage = find.byWidgetPredicate((widget) {
+      return widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/exercises/female/female.png';
+    });
+
+    expect(plankImage, findsOneWidget);
+    expect(posterImage, findsNothing);
+  });
+
+  testWidgets('plank Android timer fallback uses Plank image, not poster', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final plank = workoutCategories
+        .expand((category) => category.exercises)
+        .singleWhere(
+          (exercise) =>
+              exercise.name == 'Plank' && exercise.category == 'Belly Slimming',
+        );
+    final plankWithoutVideo = Exercise(
+      name: plank.name,
+      category: plank.category,
+      durationSeconds: plank.durationSeconds,
+      calories: plank.calories,
+      instructions: plank.instructions,
+      muscles: plank.muscles,
+      imageAsset: plank.imageAsset,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.android),
+        home: WorkoutTimerScreen(
+          exercise: plankWithoutVideo,
+          gender: Gender.female,
         ),
       ),
     );

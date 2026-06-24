@@ -9,7 +9,7 @@ import '../models/workout.dart';
 import '../services/firebase_service.dart';
 import '../services/firestore_service.dart';
 import '../services/voice_coach_service.dart';
-import '../widgets/exercise_animation_loader.dart';
+import '../widgets/exercise_media_player.dart';
 
 class WorkoutTimerScreen extends StatefulWidget {
   const WorkoutTimerScreen({
@@ -148,10 +148,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),
-                  child: ExerciseAnimationLoader(
-                    fallbackAsset: widget.gender.asset,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                  child: ExerciseMediaPlayer(
+                    exercise: widget.exercise,
+                    gender: widget.gender,
                   ),
                 ),
               ),
