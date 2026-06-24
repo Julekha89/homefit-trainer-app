@@ -6,7 +6,7 @@ import '../services/voice_coach_service.dart';
 import '../widgets/exercise_media_player.dart';
 import 'workout_timer_screen.dart';
 
-class ExerciseDetailScreen extends StatelessWidget {
+class ExerciseDetailScreen extends StatefulWidget {
   const ExerciseDetailScreen({
     super.key,
     required this.exercise,
@@ -17,6 +17,13 @@ class ExerciseDetailScreen extends StatelessWidget {
   final Exercise exercise;
   final Gender gender;
   final FitnessLevel level;
+
+  @override
+  State<ExerciseDetailScreen> createState() => _ExerciseDetailScreenState();
+}
+
+class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
+  bool _showVideo = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +37,17 @@ class ExerciseDetailScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                exercise.name,
+                widget.exercise.name,
                 style: const TextStyle(fontWeight: FontWeight.w900),
               ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   ExerciseMediaPlayer(
-                    exercise: exercise,
-                    gender: gender,
-                    videoEnabled: false,
+                    exercise: widget.exercise,
+                    gender: widget.gender,
+                    videoEnabled: _showVideo,
+                    autoPlay: _showVideo,
                   ),
                   const DecoratedBox(
                     decoration: BoxDecoration(
@@ -63,17 +71,17 @@ class ExerciseDetailScreen extends StatelessWidget {
                   children: [
                     _InfoChip(
                       icon: Icons.timer_outlined,
-                      text: '${exercise.durationSeconds} sec',
+                      text: '${widget.exercise.durationSeconds} sec',
                     ),
                     const SizedBox(width: 10),
                     _InfoChip(
                       icon: Icons.local_fire_department_outlined,
-                      text: '${exercise.calories} kcal',
+                      text: '${widget.exercise.calories} kcal',
                     ),
                     const SizedBox(width: 10),
                     _InfoChip(
                       icon: Icons.signal_cellular_alt_rounded,
-                      text: level.label,
+                      text: widget.level.label,
                     ),
                   ],
                 ),
@@ -83,7 +91,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 14),
-                ...exercise.instructions.indexed.map(
+                ...widget.exercise.instructions.indexed.map(
                   (entry) => Padding(
                     padding: const EdgeInsets.only(bottom: 14),
                     child: Row(
@@ -123,7 +131,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: exercise.muscles
+                  children: widget.exercise.muscles
                       .map(
                         (muscle) => Chip(
                           avatar: const Icon(
@@ -143,24 +151,36 @@ class ExerciseDetailScreen extends StatelessWidget {
                   ),
                   onPressed: () async {
                     await VoiceCoachService.instance.initialize();
-                    await VoiceCoachService.instance.announceExercise(exercise);
+                    await VoiceCoachService.instance.announceExercise(
+                      widget.exercise,
+                    );
                   },
                   icon: const Icon(Icons.volume_up_rounded),
                   label: const Text('Hear exercise instructions'),
                 ),
                 const SizedBox(height: 28),
                 FilledButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => WorkoutTimerScreen(
-                        exercise: exercise,
-                        gender: gender,
+                  onPressed: () => setState(() => _showVideo = true),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: Text(
+                    _showVideo ? 'Exercise video is playing' : 'Start exercise',
+                  ),
+                ),
+                if (_showVideo) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => WorkoutTimerScreen(
+                          exercise: widget.exercise,
+                          gender: widget.gender,
+                        ),
                       ),
                     ),
+                    icon: const Icon(Icons.timer_rounded),
+                    label: const Text('Start workout timer'),
                   ),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Start exercise'),
-                ),
+                ],
               ],
             ),
           ),

@@ -85,6 +85,46 @@ void main() {
     expect(posterImage, findsNothing);
   });
 
+  testWidgets('plank detail start button enables exercise video section', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final plank = workoutCategories
+        .expand((category) => category.exercises)
+        .singleWhere(
+          (exercise) =>
+              exercise.name == 'Plank' && exercise.category == 'Belly Slimming',
+        );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.android),
+        home: ExerciseDetailScreen(
+          exercise: plank,
+          gender: Gender.female,
+          level: FitnessLevel.beginner,
+        ),
+      ),
+    );
+
+    expect(find.text('Start workout timer'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Start exercise'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Start exercise'));
+    await tester.pump();
+
+    expect(find.text('Exercise video is playing'), findsOneWidget);
+    expect(find.text('Start workout timer'), findsOneWidget);
+  });
+
   testWidgets('plank Android timer fallback uses Plank image, not poster', (
     tester,
   ) async {
