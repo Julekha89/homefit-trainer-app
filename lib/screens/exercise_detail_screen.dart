@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/app_theme.dart';
 import '../models/workout.dart';
 import '../services/voice_coach_service.dart';
-import '../widgets/exercise_animation_loader.dart';
+import '../widgets/exercise_media_player.dart';
 import 'workout_timer_screen.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
@@ -36,8 +36,9 @@ class ExerciseDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ExerciseAnimationLoader(
-                    fallbackAsset: gender.asset,
+                  ExerciseMediaPlayer(
+                    exercise: exercise,
+                    gender: gender,
                     fit: BoxFit.cover,
                   ),
                   const DecoratedBox(

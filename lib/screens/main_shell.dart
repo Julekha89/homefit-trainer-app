@@ -392,12 +392,10 @@ class WorkoutCategoriesPage extends StatelessWidget {
                   .map(
                     (exercise) => ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: category.color.withValues(alpha: 0.14),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: category.color,
-                        ),
+                      leading: _ExerciseCardImage(
+                        exercise: exercise,
+                        gender: gender,
+                        color: category.color,
                       ),
                       title: Text(
                         exercise.name,
@@ -422,6 +420,39 @@ class WorkoutCategoriesPage extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ExerciseCardImage extends StatelessWidget {
+  const _ExerciseCardImage({
+    required this.exercise,
+    required this.gender,
+    required this.color,
+  });
+
+  final Exercise exercise;
+  final Gender gender;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageAsset = exerciseImageAssetFor(exercise, gender);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: 56,
+        height: 56,
+        color: color.withValues(alpha: 0.14),
+        child: imageAsset == null
+            ? Icon(Icons.play_arrow_rounded, color: color)
+            : Image.asset(
+                imageAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    Icon(Icons.play_arrow_rounded, color: color),
+              ),
       ),
     );
   }

@@ -41,6 +41,7 @@ dependencies:
   lottie: ^3.3.3
   flutter_tts: ^4.2.5
   shared_preferences: ^2.5.5
+  video_player: ^2.10.1
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +67,13 @@ flutter:
   assets:
     - assets/logo/homefit_logo.png
     - assets/exercises/female/female.png
+    - assets/exercises/female/Girl/
+    - assets/exercises/female/Girl/Belly slimming/
+    - assets/exercises/female/Girl/full body fitness/
+    - assets/exercises/female/Girl/Gulutes & Butt Sculpt/
+    - assets/exercises/female/Girl/Slender legs & thighs/
+    - assets/exercises/female/Girl/Tone arms & bust/
+    - assets/exercises/female/videos/
     - assets/exercises/male/male.png
     - assets/exercises/male/Boy/
     - assets/exercises/male/Boy/Chest & Arms Build/
@@ -73,6 +81,7 @@ flutter:
     - assets/exercises/male/Boy/Legs & Thighs/
     - assets/exercises/male/Boy/Shoulder & Back Power/
     - assets/exercises/male/Boy/Six-Pack ABS/
+    - assets/exercises/male/videos/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
