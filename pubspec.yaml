@@ -67,6 +67,12 @@ flutter:
     - assets/logo/homefit_logo.png
     - assets/exercises/female/female.png
     - assets/exercises/male/male.png
+    - assets/exercises/male/Boy/
+    - assets/exercises/male/Boy/Chest & Arms Build/
+    - assets/exercises/male/Boy/Full body Fitness/
+    - assets/exercises/male/Boy/Legs & Thighs/
+    - assets/exercises/male/Boy/Shoulder & Back Power/
+    - assets/exercises/male/Boy/Six-Pack ABS/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
