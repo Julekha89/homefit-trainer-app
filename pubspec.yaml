@@ -66,6 +66,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo/homefit_logo.png
+    - assets/onboarding/female.png
+    - assets/onboarding/male.png
     - assets/exercises/female/female.png
     - assets/exercises/female/Girl/
     - assets/exercises/female/Girl/Belly slimming/

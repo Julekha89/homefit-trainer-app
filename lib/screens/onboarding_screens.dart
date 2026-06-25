@@ -24,8 +24,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
     return _OnboardingLayout(
       step: '1 of 3',
       title: 'Choose your guide',
-      subtitle:
-          'We will use the matching exercise guide as a placeholder for your workouts.',
+      subtitle: 'Pick the trainer style that matches your workout plan.',
       body: Row(
         children: Gender.values.map((gender) {
           final selected = gender == _gender;
@@ -52,7 +51,10 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(gender.asset, fit: BoxFit.cover),
+                      Image.asset(
+                        _onboardingAssetFor(gender),
+                        fit: BoxFit.cover,
+                      ),
                       DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -107,6 +109,13 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
       ),
     );
   }
+}
+
+String _onboardingAssetFor(Gender gender) {
+  return switch (gender) {
+    Gender.female => 'assets/onboarding/female.png',
+    Gender.male => 'assets/onboarding/male.png',
+  };
 }
 
 class GoalSelectionScreen extends StatefulWidget {
