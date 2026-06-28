@@ -41,7 +41,7 @@ CoursePlan _buildCoursePlan({
     workoutDaysPerWeek: workoutDays,
     minutesPerDay: minutes,
     phases: _phases(length),
-    weeklySchedule: _weeklySchedule(gender, goal, level),
+    weeklySchedule: _weeklySchedule(gender, goal, level, length),
   );
 }
 
@@ -128,6 +128,7 @@ List<CourseWeek> _weeklySchedule(
   Gender gender,
   FitnessGoal goal,
   FitnessLevel level,
+  CourseLength length,
 ) {
   final days = switch ((gender, goal, level)) {
     (Gender.female, FitnessGoal.loseWeight, FitnessLevel.beginner) => const [
@@ -296,13 +297,82 @@ List<CourseWeek> _weeklySchedule(
     ],
   };
 
-  return [
-    CourseWeek(title: 'Weekly schedule', days: days),
-    CourseWeek(
-      title: 'Repeat with progression',
-      days: days
-          .map((day) => day == 'Rest' ? day : '$day + progress upgrade')
+  return _buildWeeklyCourseSchedule(days, length);
+}
+
+List<CourseWeek> _buildWeeklyCourseSchedule(
+  List<String> baseDays,
+  CourseLength length,
+) {
+  final weekCount = switch (length) {
+    CourseLength.thirtyDays => 4,
+    CourseLength.ninetyDays => 13,
+  };
+
+  return List.generate(weekCount, (index) {
+    final weekNumber = index + 1;
+    final isFinalShortWeek =
+        length == CourseLength.ninetyDays && weekNumber == 13;
+    final sourceDays = isFinalShortWeek ? baseDays.take(6) : baseDays;
+
+    return CourseWeek(
+      title: _weekTitle(weekNumber, length),
+      days: sourceDays
+          .map((day) => _progressedExerciseName(day, weekNumber, length))
           .toList(growable: false),
-    ),
-  ];
+    );
+  });
+}
+
+String _weekTitle(int weekNumber, CourseLength length) {
+  if (length == CourseLength.thirtyDays) {
+    return switch (weekNumber) {
+      1 => 'Week 1: Foundation',
+      2 => 'Week 2: Build stamina',
+      3 => 'Week 3: Increase intensity',
+      _ => 'Week 4: Challenge week',
+    };
+  }
+
+  if (weekNumber <= 4) return 'Week $weekNumber: Foundation';
+  if (weekNumber <= 8) return 'Week $weekNumber: Progression';
+  if (weekNumber <= 12) return 'Week $weekNumber: Transformation';
+  return 'Week 13: Final 90-day challenge';
+}
+
+String _progressedExerciseName(
+  String day,
+  int weekNumber,
+  CourseLength length,
+) {
+  if (_isRestDay(day)) return day;
+
+  if (length == CourseLength.thirtyDays) {
+    return switch (weekNumber) {
+      1 => day,
+      2 => '$day + stamina round',
+      3 => '$day + intensity boost',
+      _ => '$day challenge',
+    };
+  }
+
+  return switch (weekNumber) {
+    1 => day,
+    2 => '$day + form focus',
+    3 => '$day + extra round',
+    4 => '$day weekly challenge',
+    5 => '$day + strength upgrade',
+    6 => '$day + endurance upgrade',
+    7 => '$day + shorter rest',
+    8 => '$day progression test',
+    9 => '$day + advanced round',
+    10 => '$day + power finisher',
+    11 => '$day + transformation push',
+    12 => '$day peak challenge',
+    _ => '$day final challenge',
+  };
+}
+
+bool _isRestDay(String day) {
+  return day.toLowerCase().contains('rest');
 }
