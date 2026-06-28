@@ -650,11 +650,11 @@ class CourseDetailScreen extends StatelessWidget {
             expandedHeight: 260,
             backgroundColor: AppColors.navy,
             foregroundColor: Colors.white,
+            title: Text(
+              course.title,
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                course.length.label,
-                style: const TextStyle(fontWeight: FontWeight.w900),
-              ),
               background: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -667,13 +667,39 @@ class CourseDetailScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(24, 110, 24, 24),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: Text(
-                      course.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '${course.length.label} ${course.length.productName}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          course.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
