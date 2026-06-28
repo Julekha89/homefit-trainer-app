@@ -755,7 +755,18 @@ class CourseDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    final exercise = _firstExerciseForCourse(course);
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ExerciseDetailScreen(
+                          exercise: exercise,
+                          gender: course.gender,
+                          level: course.level,
+                        ),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Start course'),
                 ),
@@ -766,6 +777,44 @@ class CourseDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Exercise _firstExerciseForCourse(CoursePlan course) {
+  final firstWorkout = course.weeklySchedule.first.days.firstWhere(
+    (day) => !_isRestCourseDay(day),
+    orElse: () => 'Full Body',
+  );
+  final category = _categoryForCourseDay(firstWorkout);
+  return category.exercises.first;
+}
+
+WorkoutCategory _categoryForCourseDay(String day) {
+  final normalized = day.toLowerCase();
+  final categoryName = switch (normalized) {
+    final value when value.contains('full body') => 'Full Body',
+    final value when value.contains('belly') => 'Core Power',
+    final value when value.contains('six-pack') => 'Core Power',
+    final value when value.contains('abs') => 'Core Power',
+    final value when value.contains('core') => 'Core Power',
+    final value when value.contains('leg') => 'Lower Body',
+    final value when value.contains('thigh') => 'Lower Body',
+    final value when value.contains('glute') => 'Lower Body',
+    final value when value.contains('chest') => 'Upper Body',
+    final value when value.contains('arm') => 'Upper Body',
+    final value when value.contains('shoulder') => 'Upper Body',
+    final value when value.contains('back') => 'Upper Body',
+    final value when value.contains('stretch') => 'Mobility',
+    final value when value.contains('mobility') => 'Mobility',
+    _ => 'Full Body',
+  };
+  return workoutCategories.firstWhere(
+    (category) => category.name == categoryName,
+    orElse: () => workoutCategories.first,
+  );
+}
+
+bool _isRestCourseDay(String day) {
+  return day.toLowerCase().contains('rest');
 }
 
 class _PhaseTile extends StatelessWidget {
