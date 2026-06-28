@@ -16,10 +16,14 @@ class WorkoutTimerScreen extends StatefulWidget {
     super.key,
     required this.exercise,
     required this.gender,
+    this.courseExercises,
+    this.courseTitle,
   });
 
   final Exercise exercise;
   final Gender gender;
+  final List<Exercise>? courseExercises;
+  final String? courseTitle;
 
   @override
   State<WorkoutTimerScreen> createState() => _WorkoutTimerScreenState();
@@ -27,14 +31,26 @@ class WorkoutTimerScreen extends StatefulWidget {
 
 class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   Timer? _timer;
+  late List<Exercise> _sessionExercises;
   late int _remaining;
+  int _currentIndex = 0;
   bool _running = false;
   bool _voiceEnabled = true;
+
+  Exercise get _currentExercise => _sessionExercises[_currentIndex];
+  bool get _hasNextExercise => _currentIndex < _sessionExercises.length - 1;
+  bool get _isCourseSession => _sessionExercises.length > 1;
 
   @override
   void initState() {
     super.initState();
-    _remaining = widget.exercise.durationSeconds;
+    _sessionExercises =
+        widget.courseExercises == null || widget.courseExercises!.isEmpty
+        ? [widget.exercise]
+        : widget.courseExercises!;
+    _currentIndex = _sessionExercises.indexOf(widget.exercise);
+    if (_currentIndex < 0) _currentIndex = 0;
+    _remaining = _currentExercise.durationSeconds;
     unawaited(VoiceCoachService.instance.initialize());
   }
 
@@ -51,7 +67,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       setState(() => _running = false);
       return;
     }
-    if (_remaining == 0) _remaining = widget.exercise.durationSeconds;
+    if (_remaining == 0) _remaining = _currentExercise.durationSeconds;
     if (_voiceEnabled) {
       await VoiceCoachService.instance.countdown();
       if (!mounted) return;
@@ -74,7 +90,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   void _reset() {
     _timer?.cancel();
     setState(() {
-      _remaining = widget.exercise.durationSeconds;
+      _remaining = _currentExercise.durationSeconds;
       _running = false;
     });
   }
@@ -82,7 +98,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   Future<void> _showComplete() async {
     if (_voiceEnabled) {
       await VoiceCoachService.instance.speak(
-        '${widget.exercise.name} complete. Great work.',
+        '${_currentExercise.name} complete. Great work.',
       );
     }
     final userId = FirebaseService.instance.isConfigured
@@ -92,10 +108,10 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       await FirestoreService.instance.recordWorkout(
         userId,
         WorkoutHistoryEntry(
-          exerciseName: widget.exercise.name,
-          category: widget.exercise.category,
-          durationSeconds: widget.exercise.durationSeconds,
-          calories: widget.exercise.calories.toDouble(),
+          exerciseName: _currentExercise.name,
+          category: _currentExercise.category,
+          durationSeconds: _currentExercise.durationSeconds,
+          calories: _currentExercise.calories.toDouble(),
           completedAt: DateTime.now(),
         ),
       );
@@ -111,31 +127,57 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
         ),
         title: const Text('Exercise complete!'),
         content: Text(
-          'Great work—you finished ${widget.exercise.name}.',
+          _hasNextExercise
+              ? 'Great work—you finished ${_currentExercise.name}. Ready for ${_sessionExercises[_currentIndex + 1].name}?'
+              : 'Great work—you finished ${_currentExercise.name}.',
           textAlign: TextAlign.center,
         ),
         actions: [
+          if (_hasNextExercise)
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _goToNextExercise();
+              },
+              child: const Text('Next exercise'),
+            ),
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            child: const Text('Done'),
+            child: Text(_hasNextExercise ? 'Finish session' : 'Done'),
           ),
         ],
       ),
     );
   }
 
+  void _goToNextExercise() {
+    _timer?.cancel();
+    setState(() {
+      _currentIndex++;
+      _remaining = _currentExercise.durationSeconds;
+      _running = false;
+    });
+    if (_voiceEnabled) {
+      unawaited(
+        VoiceCoachService.instance.speak(
+          'Next exercise, ${_currentExercise.name}.',
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final progress = 1 - (_remaining / widget.exercise.durationSeconds);
+    final progress = 1 - (_remaining / _currentExercise.durationSeconds);
     return Scaffold(
       backgroundColor: AppColors.navy,
       appBar: AppBar(
         foregroundColor: Colors.white,
         title: Text(
-          widget.exercise.name,
+          _currentExercise.name,
           style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -149,7 +191,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(28),
                   child: ExerciseMediaPlayer(
-                    exercise: widget.exercise,
+                    exercise: _currentExercise,
                     gender: widget.gender,
                     videoEnabled: _running,
                     autoPlay: _running,
@@ -157,7 +199,18 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 18),
+              if (_isCourseSession) ...[
+                Text(
+                  '${widget.courseTitle ?? 'Course'} • Exercise ${_currentIndex + 1} of ${_sessionExercises.length}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF94A7B8),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               SizedBox(
                 width: 176,
                 height: 176,
@@ -249,7 +302,11 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                   const SizedBox(width: 20),
                   IconButton.filledTonal(
                     onPressed: () => unawaited(_showComplete()),
-                    icon: const Icon(Icons.skip_next_rounded),
+                    icon: Icon(
+                      _hasNextExercise
+                          ? Icons.skip_next_rounded
+                          : Icons.done_rounded,
+                    ),
                     iconSize: 30,
                   ),
                 ],

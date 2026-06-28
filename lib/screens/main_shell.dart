@@ -12,6 +12,7 @@ import 'calculator_screens.dart';
 import 'exercise_detail_screen.dart';
 import 'weight_tracking_screen.dart';
 import 'workout_history_screen.dart';
+import 'workout_timer_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({
@@ -756,13 +757,15 @@ class CourseDetailScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 FilledButton.icon(
                   onPressed: () {
-                    final exercise = _firstExerciseForCourse(course);
+                    final exercises = _exercisesForCourseWeek(course);
+                    final exercise = exercises.first;
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => ExerciseDetailScreen(
+                        builder: (_) => WorkoutTimerScreen(
                           exercise: exercise,
                           gender: course.gender,
-                          level: course.level,
+                          courseExercises: exercises,
+                          courseTitle: course.title,
                         ),
                       ),
                     );
@@ -779,13 +782,20 @@ class CourseDetailScreen extends StatelessWidget {
   }
 }
 
-Exercise _firstExerciseForCourse(CoursePlan course) {
-  final firstWorkout = course.weeklySchedule.first.days.firstWhere(
+List<Exercise> _exercisesForCourseWeek(CoursePlan course) {
+  final days = course.weeklySchedule.first.days.where(
     (day) => !_isRestCourseDay(day),
-    orElse: () => 'Full Body',
   );
-  final category = _categoryForCourseDay(firstWorkout);
-  return category.exercises.first;
+  return days.map((day) => _exerciseForCourseDay(day)).toList(growable: false);
+}
+
+Exercise _exerciseForCourseDay(String day) {
+  final category = _categoryForCourseDay(day);
+  final preferredName = _preferredExerciseNameForCourseDay(day);
+  return category.exercises.firstWhere(
+    (exercise) => exercise.name.toLowerCase() == preferredName,
+    orElse: () => category.exercises.first,
+  );
 }
 
 WorkoutCategory _categoryForCourseDay(String day) {
@@ -811,6 +821,27 @@ WorkoutCategory _categoryForCourseDay(String day) {
     (category) => category.name == categoryName,
     orElse: () => workoutCategories.first,
   );
+}
+
+String _preferredExerciseNameForCourseDay(String day) {
+  final normalized = day.toLowerCase();
+  return switch (normalized) {
+    final value when value.contains('belly') => 'plank',
+    final value when value.contains('six-pack') => 'plank',
+    final value when value.contains('abs') => 'plank',
+    final value when value.contains('core') => 'plank',
+    final value when value.contains('leg') => 'standard squats',
+    final value when value.contains('thigh') => 'standard squats',
+    final value when value.contains('glute') => 'standard squats',
+    final value when value.contains('chest') => 'classic pushups',
+    final value when value.contains('arm') => 'classic pushups',
+    final value when value.contains('shoulder') => 'arm circles',
+    final value when value.contains('back') => 'superman',
+    final value when value.contains('stretch') => 'cobra stretch',
+    final value when value.contains('mobility') => 'arm circles',
+    final value when value.contains('full body') => 'burpees',
+    _ => 'burpees',
+  };
 }
 
 bool _isRestCourseDay(String day) {
