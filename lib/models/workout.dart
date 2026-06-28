@@ -98,3 +98,66 @@ class WorkoutCategory {
   final Color color;
   final List<Exercise> exercises;
 }
+
+enum CourseLength { thirtyDays, ninetyDays }
+
+extension CourseLengthX on CourseLength {
+  String get label => switch (this) {
+    CourseLength.thirtyDays => '30-Day',
+    CourseLength.ninetyDays => '90-Day',
+  };
+
+  int get days => switch (this) {
+    CourseLength.thirtyDays => 30,
+    CourseLength.ninetyDays => 90,
+  };
+
+  String get productName => switch (this) {
+    CourseLength.thirtyDays => 'Starter Plan',
+    CourseLength.ninetyDays => 'Transformation Plan',
+  };
+}
+
+class CoursePhase {
+  const CoursePhase({required this.title, required this.description});
+
+  final String title;
+  final String description;
+}
+
+class CourseWeek {
+  const CourseWeek({required this.title, required this.days});
+
+  final String title;
+  final List<String> days;
+}
+
+class CoursePlan {
+  const CoursePlan({
+    required this.id,
+    required this.gender,
+    required this.goal,
+    required this.level,
+    required this.length,
+    required this.title,
+    required this.subtitle,
+    required this.description,
+    required this.workoutDaysPerWeek,
+    required this.minutesPerDay,
+    required this.phases,
+    required this.weeklySchedule,
+  });
+
+  final String id;
+  final Gender gender;
+  final FitnessGoal goal;
+  final FitnessLevel level;
+  final CourseLength length;
+  final String title;
+  final String subtitle;
+  final String description;
+  final int workoutDaysPerWeek;
+  final String minutesPerDay;
+  final List<CoursePhase> phases;
+  final List<CourseWeek> weeklySchedule;
+}

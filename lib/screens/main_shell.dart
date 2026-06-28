@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../controllers/app_controller.dart';
 import '../core/app_theme.dart';
+import '../data/course_data.dart';
 import '../data/workout_data.dart';
 import '../models/workout.dart';
 import '../services/auth_service.dart';
@@ -39,8 +40,14 @@ class _MainShellState extends State<MainShell> {
         goal: widget.goal,
         level: widget.level,
         onBrowse: () => setState(() => _index = 1),
+        onCourses: () => setState(() => _index = 2),
       ),
       WorkoutCategoriesPage(gender: widget.gender, level: widget.level),
+      CoursesPage(
+        gender: widget.gender,
+        goal: widget.goal,
+        level: widget.level,
+      ),
       AiTrainerScreen(
         gender: widget.gender,
         initialGoal: widget.goal,
@@ -71,6 +78,11 @@ class _MainShellState extends State<MainShell> {
             label: 'Workouts',
           ),
           NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month_rounded),
+            label: 'Courses',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.auto_awesome_outlined),
             selectedIcon: Icon(Icons.auto_awesome_rounded),
             label: 'Trainer',
@@ -98,12 +110,14 @@ class HomeDashboard extends StatelessWidget {
     required this.goal,
     required this.level,
     required this.onBrowse,
+    required this.onCourses,
   });
 
   final Gender gender;
   final FitnessGoal goal;
   final FitnessLevel level;
   final VoidCallback onBrowse;
+  final VoidCallback onCourses;
 
   @override
   Widget build(BuildContext context) {
@@ -217,6 +231,13 @@ class HomeDashboard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 18),
+                  _CoursesPreviewCard(
+                    gender: gender,
+                    goal: goal,
+                    level: level,
+                    onTap: onCourses,
+                  ),
+                  const SizedBox(height: 28),
                   const Row(
                     children: [
                       StatTile(
@@ -300,6 +321,74 @@ class HomeDashboard extends StatelessWidget {
   }
 }
 
+class _CoursesPreviewCard extends StatelessWidget {
+  const _CoursesPreviewCard({
+    required this.gender,
+    required this.goal,
+    required this.level,
+    required this.onTap,
+  });
+
+  final Gender gender;
+  final FitnessGoal goal;
+  final FitnessLevel level;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final courses = recommendedCoursePlans(
+      gender: gender,
+      goal: goal,
+      level: level,
+    );
+    return Material(
+      color: gender.color.withValues(alpha: 0.10),
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: gender.color,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Structured courses',
+                      style: TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${courses.first.length.label} and ${courses.last.length.label} ${goal.label} plans',
+                      style: const TextStyle(color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _CategoryMiniCard extends StatelessWidget {
   const _CategoryMiniCard({required this.category, required this.onTap});
 
@@ -339,6 +428,430 @@ class _CategoryMiniCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class CoursesPage extends StatelessWidget {
+  const CoursesPage({
+    super.key,
+    required this.gender,
+    required this.goal,
+    required this.level,
+  });
+
+  final Gender gender;
+  final FitnessGoal goal;
+  final FitnessLevel level;
+
+  @override
+  Widget build(BuildContext context) {
+    final courses = recommendedCoursePlans(
+      gender: gender,
+      goal: goal,
+      level: level,
+    );
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Courses',
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [gender.color, AppColors.navy],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'YOUR TRAINING PATH',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${gender.label} • ${goal.label} • ${level.label}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 23,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Choose a 30-day starter course or a 90-day transformation course.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          ...courses.map(
+            (course) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _CourseCard(course: course),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CourseCard extends StatelessWidget {
+  const _CourseCard({required this.course});
+
+  final CoursePlan course;
+
+  @override
+  Widget build(BuildContext context) {
+    final isNinetyDay = course.length == CourseLength.ninetyDays;
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => CourseDetailScreen(course: course),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: course.gender.color.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(
+                      isNinetyDay
+                          ? Icons.workspace_premium_rounded
+                          : Icons.flag_rounded,
+                      color: course.gender.color,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          course.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          course.subtitle,
+                          style: const TextStyle(color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(course.description),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  _CourseStat(
+                    icon: Icons.event_available_rounded,
+                    value: '${course.length.days} days',
+                  ),
+                  const SizedBox(width: 10),
+                  _CourseStat(
+                    icon: Icons.fitness_center_rounded,
+                    value: '${course.workoutDaysPerWeek} days/wk',
+                  ),
+                  const SizedBox(width: 10),
+                  _CourseStat(
+                    icon: Icons.timer_rounded,
+                    value: course.minutesPerDay,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CourseStat extends StatelessWidget {
+  const _CourseStat({required this.icon, required this.value});
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.cyan, size: 19),
+            const SizedBox(height: 5),
+            Text(
+              value,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CourseDetailScreen extends StatelessWidget {
+  const CourseDetailScreen({super.key, required this.course});
+
+  final CoursePlan course;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            pinned: true,
+            expandedHeight: 260,
+            backgroundColor: AppColors.navy,
+            foregroundColor: Colors.white,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                course.length.label,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+              background: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [course.gender.color, AppColors.navy],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 110, 24, 24),
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      course.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 36),
+            sliver: SliverList.list(
+              children: [
+                Text(course.description, style: const TextStyle(height: 1.45)),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    _CourseStat(
+                      icon: Icons.event_available_rounded,
+                      value: '${course.length.days} days',
+                    ),
+                    const SizedBox(width: 10),
+                    _CourseStat(
+                      icon: Icons.fitness_center_rounded,
+                      value: '${course.workoutDaysPerWeek} days/wk',
+                    ),
+                    const SizedBox(width: 10),
+                    _CourseStat(
+                      icon: Icons.timer_rounded,
+                      value: course.minutesPerDay,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                const Text(
+                  'Course phases',
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 12),
+                ...course.phases.indexed.map(
+                  (entry) => _PhaseTile(
+                    number: entry.$1 + 1,
+                    phase: entry.$2,
+                    color: course.gender.color,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                const Text(
+                  'Weekly schedule',
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 12),
+                ...course.weeklySchedule.map(
+                  (week) =>
+                      _ScheduleCard(week: week, color: course.gender.color),
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Start course'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PhaseTile extends StatelessWidget {
+  const _PhaseTile({
+    required this.number,
+    required this.phase,
+    required this.color,
+  });
+
+  final int number;
+  final CoursePhase phase;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: color,
+            foregroundColor: Colors.white,
+            child: Text('$number'),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  phase.title,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  phase.description,
+                  style: const TextStyle(color: AppColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScheduleCard extends StatelessWidget {
+  const _ScheduleCard({required this.week, required this.color});
+
+  final CourseWeek week;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    const dayLabels = [
+      'Day 1',
+      'Day 2',
+      'Day 3',
+      'Day 4',
+      'Day 5',
+      'Day 6',
+      'Day 7',
+    ];
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              week.title,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 12),
+            ...List.generate(week.days.length, (index) {
+              final isRest = week.days[index].toLowerCase().contains('rest');
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 52,
+                      child: Text(
+                        dayLabels[index],
+                        style: const TextStyle(
+                          color: AppColors.muted,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      isRest
+                          ? Icons.self_improvement_rounded
+                          : Icons.check_circle_rounded,
+                      size: 19,
+                      color: isRest ? AppColors.muted : color,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        week.days[index],
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );
